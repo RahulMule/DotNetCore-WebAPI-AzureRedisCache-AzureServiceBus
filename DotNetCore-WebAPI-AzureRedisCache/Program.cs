@@ -1,6 +1,7 @@
 using DotNetCore_WebAPI_AzureRedisCache.IRepository;
 using DotNetCore_WebAPI_AzureRedisCache.ProductContext;
 using DotNetCore_WebAPI_AzureRedisCache.Repository;
+using DotNetCore_WebAPI_AzureRedisCache.Services;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 
@@ -17,6 +18,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 options.UseInMemoryDatabase("Products"));
 builder.Services.AddScoped<IProduct,ProductRepository>();
 builder.Services.AddScoped<ICache, AzureRedisCache>();
+string connstring = builder.Configuration.GetConnectionString("asb");
+builder.Services.AddSingleton(new AzureServiceBusService(connstring, "products"));
 
 builder.Services.AddSwaggerGen();
 

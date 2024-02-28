@@ -1,6 +1,7 @@
 ﻿using DotNetCore_WebAPI_AzureRedisCache.IRepository;
 using DotNetCore_WebAPI_AzureRedisCache.Models;
 using DotNetCore_WebAPI_AzureRedisCache.Repository;
+using DotNetCore_WebAPI_AzureRedisCache.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,10 +13,12 @@ namespace DotNetCore_WebAPI_AzureRedisCache.Controllers
 	{
 		IProduct _product;
 		ICache _cache;
-		public ProductsController(IProduct product, ICache cache)
+		AzureServiceBusService _azureservicebusservice;
+		public ProductsController(IProduct product, ICache cache, AzureServiceBusService service)
 		{
 			_product = product;
 			_cache = cache;
+			_azureservicebusservice = service;
 		}
 		[HttpGet]
 		public async Task<IActionResult> GetProducts()
@@ -34,9 +37,11 @@ namespace DotNetCore_WebAPI_AzureRedisCache.Controllers
 			return Ok(products) ;
 		}
 		[HttpPost]
-		public Product AddProducts(Product product)
+		public async Task<ActionResult> AddProducts(Product product)
 		{
-			return _product.AddProduct(product);
+			var response =  _product.AddProduct(product);
+			await _azureservicebusservice.SendProductToQueueAsync(product);
+			return Ok(response);
 		}
 
 		[HttpGet("{id}")]
