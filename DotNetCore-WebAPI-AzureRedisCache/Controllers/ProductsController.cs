@@ -26,7 +26,7 @@ namespace DotNetCore_WebAPI_AzureRedisCache.Controllers
 				return Ok(cachedProducts);
 			}
 			var products = _product.GetProducts();
-			if( products != null)
+			if( products.Count > 0)
 			{
 				await _cache.SetCacheData("Products", products, DateTimeOffset.Now.AddMinutes(2));
 			}
