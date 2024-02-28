@@ -21,9 +21,10 @@ namespace DotNetCore_WebAPI_AzureRedisCache.Repository
 			return default;
 		}
 
-		Task<object> ICache.RemoveData(string key)
+		async Task<object> ICache.RemoveData(string key)
 		{
-			throw new NotImplementedException();
+			var resp = await _database.KeyDeleteAsync(key);
+			return resp;
 		}
 
 		 async Task<bool> ICache.SetCacheData<T>(string key, T value, DateTimeOffset expirationtime)

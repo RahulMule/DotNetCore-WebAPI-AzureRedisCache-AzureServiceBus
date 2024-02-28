@@ -38,5 +38,36 @@ namespace DotNetCore_WebAPI_AzureRedisCache.Controllers
 		{
 			return _product.AddProduct(product);
 		}
+
+		[HttpGet("{id}")]
+		public async Task<ActionResult<Product>> GetProductbyID(int id)
+		{
+			var product =  await _cache.GetCacheData<Product>($"Product{id}") ;
+			if (product != null)
+			{
+				return Ok(product);
+			}
+			var prd = _product.GetProductbyID(id);
+			if (prd != null)
+			{
+				var expiry = DateTime.Now.AddMinutes(5);
+				 await _cache.SetCacheData($"Product{id}",prd.Value,expiry);
+				return Ok(prd.Value);
+			}
+			return NotFound();
+		}
+
+		[HttpDelete("{id}")]
+		public async Task<ActionResult> DeleteProduct(int id)
+		{
+			var resp = await _product.DeleteProduct(id);
+			await _cache.RemoveData($"Product{id}");
+			if(resp == null)
+			{
+				return NotFound();
+			}
+			return NoContent();
+
+		}
 	}
 }
